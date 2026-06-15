@@ -156,15 +156,12 @@ initMainContent();
     // Textos externos (se disponíveis)
     loadExternalTexts();
 
-    // GSAP ScrollTrigger para seções avançadas
-    initGSAPAnimations();
-  }
+// GSAP ScrollTrigger para seções avançadas
+initGSAPAnimations();
   }
 
   // ─────────────────────────────────────────────
-  // Hero — animação de entrada
-  // ─────────────────────────────────────────────
-  function animateHeroIn() {
+  // Hero — animação de entrada  function animateHeroIn() {
     const tl = gsap.timeline({ delay: 0.2 });
 
     tl.from('.hero-photo-frame', {
