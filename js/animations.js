@@ -120,93 +120,64 @@ function spawnFloatingHearts(container, count = 12) {
 }
 
 // ─────────────────────────────────────────────
-// 3. BOTÃO "NÃO" QUE FOGE
+// 3. BOTÃO "NÃO" QUE FOGE SÓ AO CLICAR
 // ─────────────────────────────────────────────
 class EscapeButton {
   constructor(btn) {
     this.btn = btn;
-    this.x = 0;
-    this.y = 0;
-    this.targetX = 0;
-    this.targetY = 0;
-    this.vx = 0;
-    this.vy = 0;
     this.active = true;
-    this.place();
-    this.listen();
-    this.animate();
+    this.hasEscaped = false;
+
+    // Posiciona ao lado do SIM inicialmente
+    this.placeNextToYes();
+
+    this.btn.addEventListener('click', () => this.flee());
   }
 
-  place() {
-    const margin = 80;
-    const bw = this.btn.offsetWidth || 100;
+  placeNextToYes() {
+    const btnYes = document.getElementById('btn-yes');
+    if (!btnYes) return;
+
+    const rect = btnYes.getBoundingClientRect();
+    const bw = this.btn.offsetWidth || 110;
     const bh = this.btn.offsetHeight || 48;
-    const maxX = window.innerWidth - bw - margin;
-    const maxY = window.innerHeight - bh - margin;
-    this.x = margin + Math.random() * (maxX - margin);
-    this.y = margin + Math.random() * (maxY - margin);
-    this.applyPos();
-  }
 
-  applyPos() {
+    // Posiciona à direita do botão SIM
+    const x = rect.right + 20;
+    const y = rect.top + (rect.height / 2) - (bh / 2);
+
+    this.x = x;
+    this.y = y;
     this.btn.style.left = `${this.x}px`;
     this.btn.style.top = `${this.y}px`;
-    this.btn.style.transform = 'none';
+    this.btn.style.transition = 'none';
   }
 
-  listen() {
-    const flee = (cx, cy) => {
-      if (!this.active) return;
-      const bw = this.btn.offsetWidth;
-      const bh = this.btn.offsetHeight;
-      const bcx = this.x + bw / 2;
-      const bcy = this.y + bh / 2;
-      const dx = bcx - cx;
-      const dy = bcy - cy;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const fleeRadius = 160;
-
-      if (dist < fleeRadius) {
-        const force = (fleeRadius - dist) / fleeRadius;
-        const angle = Math.atan2(dy, dx);
-        const jump = 120 * force;
-        this.targetX = this.x + Math.cos(angle) * jump;
-        this.targetY = this.y + Math.sin(angle) * jump;
-        this.clamp();
-      }
-    };
-
-    window.addEventListener('mousemove', e => flee(e.clientX, e.clientY));
-    window.addEventListener('touchmove', e => {
-      const t = e.touches[0];
-      flee(t.clientX, t.clientY);
-    }, { passive: true });
-
-    this.btn.addEventListener('click', () => {
-      this.targetX += (Math.random() - 0.5) * 300;
-      this.targetY += (Math.random() - 0.5) * 300;
-      this.clamp();
-    });
-  }
-
-  clamp() {
-    const margin = 20;
-    const bw = this.btn.offsetWidth || 100;
-    const bh = this.btn.offsetHeight || 48;
-    this.targetX = Math.max(margin, Math.min(window.innerWidth - bw - margin, this.targetX));
-    this.targetY = Math.max(margin, Math.min(window.innerHeight - bh - margin, this.targetY));
-  }
-
-  animate() {
+  flee() {
     if (!this.active) return;
-    this.vx += (this.targetX - this.x) * 0.08;
-    this.vy += (this.targetY - this.y) * 0.08;
-    this.vx *= 0.78;
-    this.vy *= 0.78;
-    this.x += this.vx;
-    this.y += this.vy;
-    this.applyPos();
-    requestAnimationFrame(() => this.animate());
+
+    const margin = 20;
+    const bw = this.btn.offsetWidth || 110;
+    const bh = this.btn.offsetHeight || 48;
+
+    // Gera nova posição aleatória, longe da posição atual
+    let newX, newY, tries = 0;
+    do {
+      newX = margin + Math.random() * (window.innerWidth - bw - margin * 2);
+      newY = margin + Math.random() * (window.innerHeight - bh - margin * 2);
+      tries++;
+    } while (
+      Math.abs(newX - this.x) < 150 &&
+      Math.abs(newY - this.y) < 100 &&
+      tries < 10
+    );
+
+    this.x = newX;
+    this.y = newY;
+
+    this.btn.style.transition = 'left 0.4s cubic-bezier(0.16,1,0.3,1), top 0.4s cubic-bezier(0.16,1,0.3,1)';
+    this.btn.style.left = `${this.x}px`;
+    this.btn.style.top = `${this.y}px`;
   }
 
   destroy() {
