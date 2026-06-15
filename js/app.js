@@ -99,27 +99,27 @@
       mainContent.classList.add('reveal');
     }
 
-   // Espera um pouco e faz fade-out da transição
-await new Promise(r => setTimeout(r, 400));
+    // Espera um pouco e faz fade-out da transição
+    await new Promise(r => setTimeout(r, 400));
 
-// Força a remoção do overlay caso a animação falhe
-const overlay = document.getElementById('transition-overlay');
+    // Força a remoção do overlay caso a animação falhe
+    const overlay = document.getElementById('transition-overlay');
 
-try {
-  if (cinematicTrans) {
-    await cinematicTrans.fadeOut();
-  }
-} finally {
-  if (overlay) {
-    overlay.style.opacity = '0';
-    overlay.style.display = 'none';
-    overlay.style.pointerEvents = 'none';
-    overlay.classList.remove('active');
-  }
-}
+    try {
+      if (cinematicTrans) {
+        await cinematicTrans.fadeOut();
+      }
+    } finally {
+      if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.display = 'none';
+        overlay.style.pointerEvents = 'none';
+        overlay.classList.remove('active');
+      }
+    }
 
-// Iniciar todo o conteúdo principal
-initMainContent();
+    // Iniciar todo o conteúdo principal
+    initMainContent();
   }
 
   // ─────────────────────────────────────────────
@@ -156,12 +156,14 @@ initMainContent();
     // Textos externos (se disponíveis)
     loadExternalTexts();
 
-// GSAP ScrollTrigger para seções avançadas
-initGSAPAnimations();
+    // GSAP ScrollTrigger para seções avançadas
+    initGSAPAnimations();
   }
 
   // ─────────────────────────────────────────────
-  // Hero — animação de entrada  function animateHeroIn() {
+  // Hero — animação de entrada
+  // ─────────────────────────────────────────────
+  function animateHeroIn() {
     const tl = gsap.timeline({ delay: 0.2 });
 
     tl.from('.hero-photo-frame', {
@@ -315,7 +317,7 @@ initGSAPAnimations();
   // Inicialização
   // ─────────────────────────────────────────────
   function init() {
-    // Garante que o player está escondido no início
+    // Garante que o player está visível/flexível no início
     const player = document.getElementById('music-player');
     if (player) player.style.display = 'flex';
 
