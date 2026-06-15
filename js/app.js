@@ -120,6 +120,13 @@ try {
 
 // Iniciar todo o conteúdo principal
 initMainContent();
+  }
+
+  // ─────────────────────────────────────────────
+  // Inicializar conteúdo principal
+  // ─────────────────────────────────────────────
+  function initMainContent() {
+
     // Smooth scroll
     initLenis();
 
@@ -151,6 +158,7 @@ initMainContent();
 
     // GSAP ScrollTrigger para seções avançadas
     initGSAPAnimations();
+  }
   }
 
   // ─────────────────────────────────────────────
