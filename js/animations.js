@@ -100,6 +100,7 @@ class ParticleSystem {
 // 2. CORAÇÕES FLUTUANTES
 // ─────────────────────────────────────────────
 function spawnFloatingHearts(container, count = 12) {
+  if (!container) return;
   const hearts = ['♥', '❤', '♡', '💕', '💗'];
   container.innerHTML = '';
 
@@ -114,13 +115,14 @@ function spawnFloatingHearts(container, count = 12) {
       animation-delay: ${Math.random() * 8}s;
       color: hsl(${340 + Math.random() * 20}deg, ${60 + Math.random() * 30}%, ${60 + Math.random() * 20}%);
       opacity: 0;
+      position: absolute;
     `;
     container.appendChild(h);
   }
 }
 
 // ─────────────────────────────────────────────
-// 3. BOTÃO "NÃO" QUE FOGE SÓ AO CLICAR
+// 3. BOTÃO "NÃO" QUE FOGE
 // ─────────────────────────────────────────────
 class EscapeButton {
   constructor(btn) {
@@ -128,21 +130,32 @@ class EscapeButton {
     this.active = true;
     this.hasEscaped = false;
 
-    // Posiciona ao lado do SIM inicialmente
     this.placeNextToYes();
 
-    this.btn.addEventListener('click', () => this.flee());
+    // Correção: Agora foge não apenas no clique, mas ao passar o mouse ou tocar na tela
+    this.btn.addEventListener('mouseenter', () => this.flee());
+    this.btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.flee();
+    });
+    this.btn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); 
+      this.flee();
+    }, { passive: false });
   }
 
   placeNextToYes() {
     const btnYes = document.getElementById('btn-yes');
     if (!btnYes) return;
 
+    // Correção crucial: Remove o botão do fluxo HTML para que ele não fique "colado"
+    this.btn.style.position = 'fixed';
+    this.btn.style.zIndex = '999';
+
     const rect = btnYes.getBoundingClientRect();
-    const bw = this.btn.offsetWidth || 110;
     const bh = this.btn.offsetHeight || 48;
 
-    // Posiciona à direita do botão SIM
+    // Posiciona à direita do botão SIM inicialmente
     const x = rect.right + 20;
     const y = rect.top + (rect.height / 2) - (bh / 2);
 
@@ -160,7 +173,6 @@ class EscapeButton {
     const bw = this.btn.offsetWidth || 110;
     const bh = this.btn.offsetHeight || 48;
 
-    // Gera nova posição aleatória, longe da posição atual
     let newX, newY, tries = 0;
     do {
       newX = margin + Math.random() * (window.innerWidth - bw - margin * 2);
@@ -191,38 +203,42 @@ class EscapeButton {
 class CinematicTransition {
   constructor(overlay) {
     this.overlay = overlay;
-    this.canvas = overlay.querySelector('#transition-canvas');
-    this.ctx = this.canvas.getContext('2d');
-    this.hearts = overlay.querySelector('#transition-hearts');
-    this.text = overlay.querySelector('.transition-text');
+    this.canvas = overlay ? overlay.querySelector('#transition-canvas') : null;
+    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+    this.hearts = overlay ? overlay.querySelector('#transition-hearts') : null;
+    this.text = overlay ? overlay.querySelector('.transition-text') : null;
     this.particles = [];
     this.animId = null;
     this.startTime = null;
-    this.done = false;
   }
 
   play() {
     return new Promise(resolve => {
+      if (!this.overlay) return resolve(); // Trava de segurança
+      
       this.overlay.classList.add('active');
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
 
-      // Spawn burst hearts
-      this.spawnHearts();
+      if (this.canvas && this.ctx) {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.spawnParticles();
+        this.startTime = Date.now();
+        this.animateCanvas();
+      }
 
-      // Show text after delay
+      if (this.hearts) {
+        this.spawnHearts();
+      }
+
+      if (this.text) {
+        setTimeout(() => {
+          this.text.classList.add('visible');
+        }, 600);
+      }
+
+      // Resolve a promise independente dos elementos existirem ou não
       setTimeout(() => {
-        this.text.classList.add('visible');
-      }, 600);
-
-      // Animate canvas particles
-      this.spawnParticles();
-      this.startTime = Date.now();
-      this.animateCanvas();
-
-      // Resolve after 2.4s
-      setTimeout(() => {
-        this.text.classList.remove('visible');
+        if (this.text) this.text.classList.remove('visible');
         resolve();
       }, 2400);
     });
@@ -230,14 +246,28 @@ class CinematicTransition {
 
   fadeOut() {
     return new Promise(resolve => {
-      gsap.to(this.overlay, {
-        opacity: 0, duration: 0.8, ease: 'power2.inOut',
-        onComplete: () => {
-          this.overlay.style.display = 'none';
-          cancelAnimationFrame(this.animId);
-          resolve();
-        }
-      });
+      if (!this.overlay) return resolve();
+
+      // Fallback caso o GSAP falhe ou demore a responder
+      let isResolved = false;
+      const safeResolve = () => {
+        if (isResolved) return;
+        isResolved = true;
+        this.overlay.style.display = 'none';
+        if (this.animId) cancelAnimationFrame(this.animId);
+        resolve();
+      };
+
+      setTimeout(safeResolve, 1000); // Garante que a transição finalize em no máx 1s
+
+      if (typeof gsap !== 'undefined') {
+        gsap.to(this.overlay, {
+          opacity: 0, duration: 0.8, ease: 'power2.inOut',
+          onComplete: safeResolve
+        });
+      } else {
+        safeResolve();
+      }
     });
   }
 
@@ -285,6 +315,8 @@ class CinematicTransition {
   }
 
   animateCanvas() {
+    if (!this.ctx || !this.canvas) return;
+    
     const loop = () => {
       const t = (Date.now() - this.startTime) / 1000;
       this.ctx.fillStyle = `rgba(26, 10, 20, 0.15)`;
@@ -454,8 +486,16 @@ function initLenis() {
     touchMultiplier: 1.5
   });
 
-  gsap.ticker.add(time => lenis.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
+  if (typeof gsap !== 'undefined') {
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  } else {
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+  }
 
   return lenis;
 }
