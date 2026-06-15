@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a0a14" />
+  <title>Pra Você</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+
+  <!-- Lenis Smooth Scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     TELA DE DECISÃO
+════════════════════════════════════════ -->
+<div id="decision-screen">
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="ambient-lights">
+    <div class="light light-1"></div>
+    <div class="light light-2"></div>
+    <div class="light light-3"></div>
+  </div>
+
+  <div class="floating-hearts-container" id="floating-hearts"></div>
+
+  <div class="decision-content">
+    <div class="emoji-container">
+      <span class="main-emoji" id="main-emoji">🥺</span>
+      <div class="emoji-glow"></div>
+    </div>
+
+    <h1 class="decision-title">
+      Tá pronta pra reconstruir<br/>e fazer tudo dar certo?
+    </h1>
+
+    <div class="decision-buttons">
+      <button class="btn-yes" id="btn-yes">
+        <span class="btn-yes-inner">
+          <span class="btn-yes-text">Sim ✨</span>
+          <span class="btn-yes-shimmer"></span>
+        </span>
+      </button>
+
+      <button class="btn-no" id="btn-no">
+        <span>Não</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TRANSITION OVERLAY
+════════════════════════════════════════ -->
+<div id="transition-overlay">
+  <canvas id="transition-canvas"></canvas>
+  <div class="transition-hearts" id="transition-hearts"></div>
+  <div class="transition-text">
+    <span>Sabia que você escolheria certo</span>
+    <span class="t-heart">♥</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PÁGINA PRINCIPAL
+════════════════════════════════════════ -->
+<main id="main-content" class="hidden">
+
+  <!-- MUSIC PLAYER -->
+  <div class="music-player" id="music-player">
+    <audio id="main-audio" preload="none">
+      <source src="assets/music/te-vivo.mp3" type="audio/mpeg">
+    </audio>
+    <div class="player-inner">
+      <div class="player-info">
+        <div class="player-album-art">
+          <div class="vinyl-disc" id="vinyl-disc">
+            <div class="vinyl-center"></div>
+          </div>
+        </div>
+        <div class="player-meta">
+          <span class="song-title">Te Vivo</span>
+          <span class="song-artist">Luan Santana</span>
+        </div>
+      </div>
+      <div class="player-controls">
+        <button class="play-btn" id="play-btn" aria-label="Play/Pause">
+          <svg class="icon-play" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+          <svg class="icon-pause hidden" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+            <div class="progress-thumb" id="progress-thumb"></div>
+          </div>
+          <div class="time-wrap">
+            <span id="time-current">0:00</span>
+            <span id="time-total">0:00</span>
+          </div>
+        </div>
+        <div class="volume-wrap">
+          <svg viewBox="0 0 24 24" class="volume-icon"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.01" value="0.7">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. HERO -->
+  <section class="hero-section" id="hero">
+    <div class="hero-bg">
+      <div class="hero-gradient"></div>
+      <canvas id="hero-canvas"></canvas>
+    </div>
+
+    <div class="hero-photo-wrap">
+      <div class="hero-photo-frame">
+        <img src="assets/photos/hero.jpg" alt="Nós" class="hero-photo" id="hero-photo"
+             onerror="this.parentElement.classList.add('no-photo')"/>
+        <div class="hero-photo-placeholder">
+          <span>📸</span>
+          <small>Adicione hero.jpg<br>em assets/photos/</small>
+        </div>
+      </div>
+      <div class="hero-photo-glow"></div>
+    </div>
+
+    <div class="hero-text">
+      <p class="hero-eyebrow" data-text-file="assets/texts/hero-eyebrow.txt">
+        Pra você, que ainda mora aqui dentro
+      </p>
+      <h1 class="hero-title" data-text-file="assets/texts/hero-title.txt">
+        Essa é a minha carta de amor mais honesta
+      </h1>
+      <p class="hero-subtitle" data-text-file="assets/texts/hero-subtitle.txt">
+        Não é perfeita. Mas é real. E é tudo que eu tenho pra te dar hoje.
+      </p>
+    </div>
+
+    <div class="hero-scroll-hint">
+      <div class="scroll-line"></div>
+      <span>role pra baixo</span>
+    </div>
+  </section>
+
+  <!-- 2. PRIMEIRA MENSAGEM -->
+  <section class="message-section msg-1" id="msg-section-1">
+    <div class="msg-bg">
+      <div class="msg-ambient"></div>
+    </div>
+    <div class="msg-container">
+      <div class="msg-decoration">✦</div>
+      <div class="msg-content" data-text-file="assets/texts/mensagem1.txt">
+        <p>Eu sei que errei. Sei que te machuquei de formas que eu ainda estou entendendo. E sei que "me desculpa" às vezes parece pequeno demais pra o tamanho do que aconteceu.</p>
+        <p>Mas o que eu posso te dizer com absoluta certeza é que você é a pessoa mais importante que já passou pela minha vida. E eu não consigo simplesmente fingir que tudo bem sem tentar de verdade.</p>
+        <p>Então eu fiz isso aqui. Com as próprias mãos. Com o coração aberto. Só pra você.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. GALERIA DE MEMÓRIAS -->
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-header">
+      <p class="section-eyebrow">cada foto, uma memória que não apaga</p>
+      <h2 class="section-title">Nossas histórias</h2>
+    </div>
+
+    <div class="gallery-coverflow" id="gallery-coverflow">
+      <div class="gallery-track" id="gallery-track">
+        <!-- Slides injetados pelo JS -->
+      </div>
+    </div>
+
+    <div class="gallery-nav">
+      <button class="gal-prev" id="gal-prev" aria-label="Anterior">‹</button>
+      <div class="gallery-dots" id="gallery-dots"></div>
+      <button class="gal-next" id="gal-next" aria-label="Próximo">›</button>
+    </div>
+
+    <p class="gallery-hint">← deslize para navegar →</p>
+  </section>
+
+  <!-- 4. SEGUNDA MENSAGEM -->
+  <section class="message-section msg-2" id="msg-section-2">
+    <div class="msg-container split">
+      <div class="msg-quote-mark">"</div>
+      <div class="msg-content" data-text-file="assets/texts/mensagem2.txt">
+        <p>Teve dias que eu olhei pro teto às 3 da manhã e só pensava em você. Em como você ri quando algo te pega de surpresa. Em como você coloca a mão na frente da boca quando ri de verdade.</p>
+        <p>Essas coisas ficaram comigo. Não saem.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. LINHA DO TEMPO -->
+  <section class="timeline-section" id="timeline">
+    <div class="timeline-header">
+      <p class="section-eyebrow">do começo até aqui</p>
+      <h2 class="section-title">A nossa história</h2>
+    </div>
+
+    <div class="timeline-container" id="timeline-container">
+      <!-- Items injetados pelo JS via assets/texts/timeline.json -->
+      <div class="timeline-item" data-side="left">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <span class="timeline-date">O começo</span>
+          <h3 class="timeline-event">Quando tudo começou</h3>
+          <p class="timeline-desc">Edite o arquivo assets/texts/timeline.json para personalizar os eventos</p>
+        </div>
+      </div>
+      <div class="timeline-item" data-side="right">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <span class="timeline-date">Memórias</span>
+          <h3 class="timeline-event">Momentos que guardarei pra sempre</h3>
+          <p class="timeline-desc">Cada detalhe importou. Cada risada ficou comigo.</p>
+        </div>
+      </div>
+      <div class="timeline-item" data-side="left">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <span class="timeline-date">Hoje</span>
+          <h3 class="timeline-event">O dia em que peço uma nova chance</h3>
+          <p class="timeline-desc">Com mais maturidade, mais amor e mais clareza do que realmente importa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. MURAL POLAROID -->
+  <section class="polaroid-section" id="polaroid">
+    <div class="polaroid-header">
+      <p class="section-eyebrow">pequenos pedaços nossos</p>
+      <h2 class="section-title">Mural de memórias</h2>
+    </div>
+    <div class="polaroid-board" id="polaroid-board">
+      <!-- Polaroids injetados pelo JS -->
+    </div>
+  </section>
+
+  <!-- 7. TERCEIRA MENSAGEM / O QUE EU APRENDI -->
+  <section class="learned-section" id="learned">
+    <div class="learned-bg"></div>
+    <div class="learned-header">
+      <p class="section-eyebrow">crescimento real</p>
+      <h2 class="section-title">O que eu aprendi</h2>
+    </div>
+
+    <div class="learned-cards" id="learned-cards">
+      <div class="learned-card" data-text-file="assets/texts/aprendizado1.txt">
+        <div class="learned-icon">💬</div>
+        <h3>Comunicação</h3>
+        <p>Aprendi que guardar as coisas pra dentro não resolve. Que falar mesmo com medo é o que constrói. Não vou mais deixar o silêncio falar por mim.</p>
+      </div>
+      <div class="learned-card" data-text-file="assets/texts/aprendizado2.txt">
+        <div class="learned-icon">👁️</div>
+        <h3>Presença</h3>
+        <p>Estar presente de verdade, não só fisicamente. Olhar nos olhos. Ouvir sem já estar pensando na resposta. Te ver de verdade.</p>
+      </div>
+      <div class="learned-card" data-text-file="assets/texts/aprendizado3.txt">
+        <div class="learned-icon">🌱</div>
+        <h3>Cuidado</h3>
+        <p>Que amor não é só sentir. É ação, é escolha, é prioridade. E eu quero te colocar na lista das coisas mais importantes.</p>
+      </div>
+      <div class="learned-card" data-text-file="assets/texts/aprendizado4.txt">
+        <div class="learned-icon">🤝</div>
+        <h3>Responsabilidade</h3>
+        <p>Parei de procurar justificativa pra o que fiz de errado. Errei. Sei disso. E quero consertar de verdade, não só com palavras.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. QUARTA MENSAGEM -->
+  <section class="message-section msg-3" id="msg-section-3">
+    <div class="msg-container">
+      <div class="msg-content" data-text-file="assets/texts/mensagem3.txt">
+        <p>Não estou te pedindo pra esquecer. Estou te pedindo pra acreditar que as pessoas mudam quando se importam o suficiente. E eu me importo.</p>
+        <p>Me importo com o jeito que você dorme. Com o que você gosta de comer quando está triste. Com os seus planos que ainda não te escutei falar direito.</p>
+        <p>Me importo com você.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. O QUE QUERO CONSTRUIR -->
+  <section class="future-section" id="future">
+    <div class="future-bg">
+      <canvas id="future-canvas"></canvas>
+    </div>
+    <div class="future-header">
+      <p class="section-eyebrow">olhando pra frente</p>
+      <h2 class="section-title">O que quero construir<br/>daqui pra frente</h2>
+    </div>
+
+    <div class="future-items" id="future-items">
+      <div class="future-item">
+        <div class="future-number">01</div>
+        <div class="future-text">
+          <h3>Um espaço seguro pra você ser você</h3>
+          <p data-text-file="assets/texts/futuro1.txt">Onde você pode falar o que sente sem medo de julgamento. Onde suas crises têm colo e suas conquistas têm aplausos.</p>
+        </div>
+      </div>
+      <div class="future-item">
+        <div class="future-number">02</div>
+        <div class="future-text">
+          <h3>Aventuras que ainda não vivemos</h3>
+          <p data-text-file="assets/texts/futuro2.txt">Lugares pra ir, comidas pra experimentar, histórias pra contar. A lista é grande e quero fazer ela com você.</p>
+        </div>
+      </div>
+      <div class="future-item">
+        <div class="future-number">03</div>
+        <div class="future-text">
+          <h3>Uma parceria de verdade</h3>
+          <p data-text-file="assets/texts/futuro3.txt">Não dois mundos paralelos, mas uma vida construída juntos. Com cumplicidade, respeito e muito amor no meio.</p>
+        </div>
+      </div>
+      <div class="future-item">
+        <div class="future-number">04</div>
+        <div class="future-text">
+          <h3>Mais atenção. Mais cuidado. Mais nós.</h3>
+          <p data-text-file="assets/texts/futuro4.txt">Pequenas coisas que fazem diferença. Uma mensagem no meio do dia só pra dizer que pensei em você.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. MENSAGEM FINAL -->
+  <section class="final-section" id="final">
+    <div class="final-bg">
+      <div class="final-particles" id="final-particles"></div>
+    </div>
+    <div class="final-content">
+      <div class="final-heart-big">♥</div>
+      <h2 class="final-title" data-text-file="assets/texts/mensagem-final.txt">
+        Você é a pessoa pela qual eu escolho ser melhor.<br/>
+        E espero poder te mostrar isso, dia a dia.
+      </h2>
+      <p class="final-signature">Com todo o amor que eu tenho,</p>
+      <p class="final-name great-vibes">Pra você.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- Scripts -->
+<script src="js/animations.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/music.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
