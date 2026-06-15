@@ -99,18 +99,27 @@
       mainContent.classList.add('reveal');
     }
 
-    // Espera um pouco e faz fade-out da transição
-    await new Promise(r => setTimeout(r, 400));
+   // Espera um pouco e faz fade-out da transição
+await new Promise(r => setTimeout(r, 400));
+
+// Força a remoção do overlay caso a animação falhe
+const overlay = document.getElementById('transition-overlay');
+
+try {
+  if (cinematicTrans) {
     await cinematicTrans.fadeOut();
-
-    // Iniciar todo o conteúdo principal
-    initMainContent();
   }
+} finally {
+  if (overlay) {
+    overlay.style.opacity = '0';
+    overlay.style.display = 'none';
+    overlay.style.pointerEvents = 'none';
+    overlay.classList.remove('active');
+  }
+}
 
-  // ─────────────────────────────────────────────
-  // Inicializar conteúdo principal
-  // ─────────────────────────────────────────────
-  function initMainContent() {
+// Iniciar todo o conteúdo principal
+initMainContent();
     // Smooth scroll
     initLenis();
 
