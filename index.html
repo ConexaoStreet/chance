@@ -128,11 +128,16 @@
 
     <div class="hero-photo-wrap">
       <div class="hero-photo-frame">
-        <img src="assets/photos/hero.jpg" alt="Nós" class="hero-photo" id="hero-photo"
-             onerror="this.parentElement.classList.add('no-photo')"/>
+        <img src="assets/photos/hero.png" alt="Nós" class="hero-photo" id="hero-photo"
+             data-fallback-tried="0"
+             onerror="
+               var tried = parseInt(this.dataset.fallbackTried);
+               if (tried === 0) { this.dataset.fallbackTried = '1'; this.src = 'assets/photos/hero.jpg'; }
+               else { this.parentElement.classList.add('no-photo'); }
+             "/>
         <div class="hero-photo-placeholder">
           <span>📸</span>
-          <small>Adicione hero.jpg<br>em assets/photos/</small>
+          <small>Adicione hero.png ou hero.jpg<br>em assets/photos/</small>
         </div>
       </div>
       <div class="hero-photo-glow"></div>
