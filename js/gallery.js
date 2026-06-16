@@ -93,7 +93,7 @@ class CoverflowGallery {
 
     // Keyboard
     document.addEventListener('keydown', e => {
-      if (!document.getElementById('main-content')?.classList.contains('reveal')) return;
+      if (!document.getElementById('main-content')?.classList.contains('main-revealed')) return;
       if (e.key === 'ArrowLeft') this.prev();
       if (e.key === 'ArrowRight') this.next();
     });

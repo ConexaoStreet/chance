@@ -107,7 +107,7 @@
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
       mainContent.classList.remove('hidden');
-      mainContent.classList.add('reveal');
+      mainContent.classList.add('main-revealed');
     }
 
     // Espera um pouco e faz fade-out da transição
