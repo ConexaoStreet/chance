@@ -350,8 +350,9 @@ button {
   background: var(--cream);
   min-height: 100vh;
 }
-#main-content.reveal {
+#main-content.main-revealed {
   display: block !important;
+  opacity: 1 !important;
 }
 
 /* ═══════════════════════════════════════════════
