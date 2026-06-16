@@ -132,16 +132,11 @@ class EscapeButton {
 
     this.placeNextToYes();
 
-    // Correção: Agora foge não apenas no clique, mas ao passar o mouse ou tocar na tela
-    this.btn.addEventListener('mouseenter', () => this.flee());
+    // Foge apenas ao clicar — sem reação a hover ou toque de aproximação
     this.btn.addEventListener('click', (e) => {
       e.preventDefault();
       this.flee();
     });
-    this.btn.addEventListener('touchstart', (e) => {
-      e.preventDefault(); 
-      this.flee();
-    }, { passive: false });
   }
 
   placeNextToYes() {

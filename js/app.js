@@ -84,10 +84,21 @@
     if (particleSystem) particleSystem.stop();
 
     // Animação de saída da tela de decisão
-    gsap.to(decisionScreen, {
-      opacity: 0, scale: 0.97, duration: 0.6, ease: 'power2.in',
-      onComplete: () => { decisionScreen.style.display = 'none'; }
-    });
+    if (typeof gsap !== 'undefined') {
+      gsap.to(decisionScreen, {
+        opacity: 0, scale: 0.97, duration: 0.6, ease: 'power2.in',
+        onComplete: () => { decisionScreen.style.display = 'none'; }
+      });
+    } else if (decisionScreen) {
+      decisionScreen.style.display = 'none';
+    }
+
+    // Trava de segurança: garante que a tela de decisão nunca fique presa
+    setTimeout(() => {
+      if (decisionScreen && decisionScreen.style.display !== 'none') {
+        decisionScreen.style.display = 'none';
+      }
+    }, 1500);
 
     // Iniciar transição cinematográfica
     await cinematicTrans.play();
@@ -103,18 +114,18 @@
     await new Promise(r => setTimeout(r, 400));
 
     // Força a remoção do overlay caso a animação falhe
-    const overlay = document.getElementById('transition-overlay');
+    const transitionOverlayEl = document.getElementById('transition-overlay');
 
     try {
       if (cinematicTrans) {
         await cinematicTrans.fadeOut();
       }
     } finally {
-      if (overlay) {
-        overlay.style.opacity = '0';
-        overlay.style.display = 'none';
-        overlay.style.pointerEvents = 'none';
-        overlay.classList.remove('active');
+      if (transitionOverlayEl) {
+        transitionOverlayEl.style.opacity = '0';
+        transitionOverlayEl.style.display = 'none';
+        transitionOverlayEl.style.pointerEvents = 'none';
+        transitionOverlayEl.classList.remove('active');
       }
     }
 
@@ -164,6 +175,13 @@
   // Hero — animação de entrada
   // ─────────────────────────────────────────────
   function animateHeroIn() {
+    if (typeof gsap === 'undefined') {
+      // Fallback sem GSAP: usa apenas as classes "in" do CSS
+      document.querySelectorAll('.hero-eyebrow, .hero-title, .hero-subtitle')
+        .forEach(el => el.classList.add('in'));
+      return;
+    }
+
     const tl = gsap.timeline({ delay: 0.2 });
 
     tl.from('.hero-photo-frame', {
