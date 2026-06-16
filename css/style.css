@@ -203,10 +203,8 @@ button {
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap;
   justify-content: center;
   position: relative;
-  min-height: 80px;
 }
 
 /* YES BUTTON */
@@ -274,19 +272,22 @@ button {
   position: fixed;
   padding: 14px 32px;
   border-radius: var(--radius-pill);
-  border: 1.5px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(220, 60, 60, 0.5);
+  background: rgba(180, 30, 30, 0.15);
   backdrop-filter: blur(10px);
-  color: rgba(255,255,255,0.45);
+  color: #ff6b6b;
   font-family: var(--font-body);
   font-size: 15px;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition: left 0.4s cubic-bezier(0.16,1,0.3,1), top 0.4s cubic-bezier(0.16,1,0.3,1);
   z-index: 100;
   pointer-events: auto;
-  cursor: default;
+  cursor: pointer;
   user-select: none;
 }
-.btn-no:hover { opacity: 0.3; }
+.btn-no:hover {
+  background: rgba(180, 30, 30, 0.25);
+  border-color: rgba(220, 60, 60, 0.7);
+}
 
 /* ═══════════════════════════════════════════════
    TRANSITION OVERLAY
